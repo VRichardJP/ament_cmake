@@ -67,10 +67,17 @@ macro(ament_auto_find_build_dependencies)
     find_package(${_dep} QUIET ${_REQUIRED_KEYWORD})
     if(${_dep}_FOUND)
       list(APPEND ${PROJECT_NAME}_FOUND_BUILD_DEPENDS ${_dep})
-
-      list(APPEND ${PROJECT_NAME}_FOUND_DEFINITIONS ${${_dep}_DEFINITIONS})
-      list(APPEND ${PROJECT_NAME}_FOUND_INCLUDE_DIRS ${${_dep}_INCLUDE_DIRS})
-      list(APPEND ${PROJECT_NAME}_FOUND_LIBRARIES ${${_dep}_LIBRARIES})
+      
+      # if a package provides modern CMake interface targets use them
+      # exclusively assuming the classic CMake variables only exist for
+      # backward compatibility
+      if(NOT "${${_dep}_TARGETS}" STREQUAL "")
+        list(APPEND ${PROJECT_NAME}_FOUND_TARGETS ${${_dep}_TARGETS})
+      else()
+        list(APPEND ${PROJECT_NAME}_FOUND_DEFINITIONS ${${_dep}_DEFINITIONS})
+        list(APPEND ${PROJECT_NAME}_FOUND_INCLUDE_DIRS ${${_dep}_INCLUDE_DIRS})
+        list(APPEND ${PROJECT_NAME}_FOUND_LIBRARIES ${${_dep}_LIBRARIES})
+      endif()
     endif()
   endforeach()
 
